@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light">
+<meta name="robots" content="noindex,nofollow">
+<title>Medical History Timeline</title>
+<style>
+:root{color-scheme:light;--bg:#f6f8f7;--card:#fff;--ink:#14231f;--mute:#5d6f69;--line:#cfdbd6;--trunk:#2f6f5e;--imp:#d9822b;--impbg:#fff4e6;--acc:#2f6f5e;--accink:#fff;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 "Source Sans 3","Segoe UI",system-ui,sans-serif}
+h1,h2,h3{font-family:Georgia,"Iowan Old Style",serif;margin:0;line-height:1.2}
+main{max-width:980px;margin:0 auto;padding:28px 18px 60px}
+h1{font-size:2rem}
+header p{color:var(--mute);margin:6px 0 22px;max-width:60ch}
+form{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:18px;display:grid;gap:12px;grid-template-columns:repeat(6,1fr)}
+form[hidden],[hidden]{display:none!important}
+label{display:grid;gap:4px;font-size:.85rem;color:var(--mute)}
+input,select,textarea{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:8px 10px;width:100%}
+:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+.f-year{grid-column:span 1}.f-month{grid-column:span 2}.f-type{grid-column:span 3}.f-title,.f-det,.f-pic,.row{grid-column:span 6}
+textarea{min-height:76px;resize:vertical}
+.row{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.imp{display:flex;flex-direction:row;align-items:center;gap:8px;color:var(--ink);font-size:.95rem;padding:8px 12px;border:1px solid var(--imp);border-radius:6px;background:var(--impbg);cursor:pointer}
+.imp input{width:auto}
+button{font:inherit;cursor:pointer;border-radius:6px;padding:9px 18px;border:1px solid var(--acc)}
+.primary{background:var(--acc);color:var(--accink);font-weight:600}
+.ghost{background:transparent;color:var(--ink);border-color:var(--line)}
+.err{color:#b4540a;font-size:.9rem}
+.bar{display:flex;justify-content:space-between;align-items:center;margin:34px 0 8px;flex-wrap:wrap;gap:8px}
+.bar span{color:var(--mute);font-size:.9rem}
+.bar .ghost{padding:6px 14px}
+#note{background:var(--impbg);border:1px solid var(--imp);border-radius:8px;padding:10px 14px;margin-bottom:14px}
+.ph{display:none}
+#tl{position:relative;padding:10px 0}
+#tl:before{content:"";position:absolute;left:50%;top:0;bottom:0;width:4px;margin-left:-2px;background:var(--trunk);border-radius:2px}
+.year{position:relative;text-align:center;margin:26px 0 6px;z-index:1}
+.year b{display:inline-block;font:700 1.25rem Georgia,serif;background:var(--trunk);color:var(--accink);padding:4px 18px;border-radius:20px}
+.ev{position:relative;width:50%;padding:8px 34px 8px 0}
+.ev.r{margin-left:50%;padding:8px 0 8px 34px}
+.ev:after{content:"";position:absolute;top:30px;right:0;width:34px;height:3px;background:var(--trunk)}
+.ev.r:after{right:auto;left:0}
+.ev:before{content:"";position:absolute;top:24px;right:-8px;width:14px;height:14px;border-radius:50%;background:var(--card);border:3px solid var(--trunk);z-index:1}
+.ev.r:before{right:auto;left:-7px}
+.ev.i:before{background:var(--imp);border-color:var(--imp)}
+.ev.i:after{background:var(--imp)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px 14px}
+.i .card{border:2px solid var(--imp);background:var(--impbg)}
+.when{font-size:.82rem;color:var(--mute)}
+.card h3{font-size:1.05rem;margin:2px 0 4px}
+.card p{margin:6px 0 0;white-space:pre-wrap;overflow-wrap:anywhere}
+.tag{display:inline-block;font-size:.75rem;border:1px solid var(--line);border-radius:12px;padding:0 8px;margin-right:6px;color:var(--mute)}
+.tag.star{background:var(--imp);border-color:var(--imp);color:#1d1204;font-weight:700}
+.pics{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.pics div{position:relative}
+.pics img{width:76px;height:76px;object-fit:cover;border-radius:6px;border:1px solid var(--line);cursor:zoom-in;display:block}
+.pics .x{position:absolute;top:-6px;right:-6px;width:20px;height:20px;padding:0;border-radius:50%;background:var(--card);color:var(--ink);border-color:var(--line);line-height:1}
+.act{margin-top:8px;display:flex;gap:8px}
+.act button{padding:3px 10px;font-size:.8rem;background:transparent;color:var(--mute);border-color:var(--line)}
+.empty{text-align:center;color:var(--mute);padding:30px 0;position:relative;background:var(--bg)}
+#lb{position:fixed;inset:0;background:rgba(10,20,17,.85);display:flex;align-items:center;justify-content:center;z-index:9;cursor:zoom-out;padding:16px}
+#lb img{max-width:100%;max-height:100%;border-radius:8px}
+@media (max-width:640px){
+form{grid-template-columns:1fr 1fr}.f-month,.f-year{grid-column:span 1}.f-type,.f-title,.f-det,.f-pic,.row{grid-column:span 2}
+#tl:before{left:14px}.year{text-align:left}
+.ev,.ev.r{width:auto;margin-left:0;padding:8px 0 8px 40px}
+.ev:before,.ev.r:before{left:7px;right:auto}.ev:after,.ev.r:after{left:14px;right:auto;width:26px}
+}
+@media print{
+*{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+body{background:#fff}main{padding:0}
+form,.act,.bar button,#note,.x,header p{display:none!important}
+.ph{display:block;color:var(--mute);margin:0 0 8px}
+.ev{break-inside:avoid}.year{break-after:avoid}
+.pics img{width:90px;height:90px;cursor:default}
+}
+</style>
+</head>
+<body>
+<main>
+<header>
+<h1>Medical history</h1>
+<p id="intro">A timeline of medical events, oldest first. Important events are highlighted.</p>
+<p class="ph" id="ph"></p>
+</header>
+
+<div id="note" hidden><span id="notetxt"></span> <button class="ghost" id="importbtn" type="button">Import and save</button></div>
+
+<form id="f" autocomplete="off" hidden>
+<label class="f-year">Year<input id="y" type="number" min="1900" max="2100" placeholder="2017" required></label>
+<label class="f-month">Month (optional)<select id="m"></select></label>
+<label class="f-type">Type<select id="t"><option>Illness</option><option>Surgery</option><option>Injury</option><option>Medication</option><option>Test or scan</option><option>Vaccination</option><option>Hospital visit</option><option>Other</option></select></label>
+<label class="f-title">Incident<input id="n" maxlength="120" placeholder="e.g. Appendix removed" required></label>
+<label class="f-det">Details (doctor, hospital, treatment, outcome)<textarea id="d"></textarea></label>
+<div class="f-pic"><label>Photos of reports or scans (up to 6, resized automatically)<input id="p" type="file" accept="image/*" multiple></label><div class="pics" id="thumbs"></div></div>
+<div class="row">
+<label class="imp"><input id="i" type="checkbox"> Mark as important</label>
+<button class="primary" id="save" type="submit">Add to timeline</button>
+<button class="ghost" id="cancel" type="button" hidden>Cancel edit</button>
+<span class="err" id="err"></span>
+</div>
+</form>
+
+<div class="bar"><h2>Timeline</h2><span id="count"></span><button class="ghost" id="pr" type="button">Print or save as PDF</button></div>
+<p class="err" id="st" role="status"></p>
+<section id="tl" aria-live="polite"></section>
+<p class="bar" style="margin-top:40px"><button class="ghost" id="auth" type="button">Owner sign in</button></p>
+<form id="lg" hidden>
+<label class="f-type">Email<input id="em" type="email" autocomplete="username"></label>
+<label class="f-type">Password<input id="pw" type="password" autocomplete="current-password"></label>
+<div class="row"><button class="primary" type="submit">Sign in</button><span class="err" id="lerr"></span></div>
+</form>
+</main>
+<div id="lb" hidden><img alt=""></div>
+<script type="module">
+import {initializeApp} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import {getFirestore,collection,onSnapshot,addDoc,setDoc,doc,deleteDoc} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import {getAuth,onAuthStateChanged,signInWithEmailAndPassword,signOut} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import {firebaseConfig,OWNER_UID} from "./firebase-config.js";
+
+const MONTHS=["Month unknown","January","February","March","April","May","June","July","August","September","October","November","December"];
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+let items=[],can=false,editing=null,pics=[];
+$("m").innerHTML=MONTHS.map((n,i)=>`<option value="${i}">${n}</option>`).join("");
+$("ph").textContent="Medical history timeline, printed "+new Date().toLocaleDateString(undefined,{year:"numeric",month:"long",day:"numeric"});
+
+function render(){
+  $("count").textContent=items.length?`${items.length} event${items.length>1?"s":""}`:"";
+  if(!items.length){$("tl").innerHTML='<p class="empty">No events yet.</p>';return}
+  const s=[...items].sort((a,b)=>a.y-b.y||a.m-b.m||(a.c||0)-(b.c||0));
+  let h="",yr=null,side=0;
+  for(const e of s){
+    if(e.y!==yr){yr=e.y;h+=`<div class="year"><b>${yr}</b></div>`}
+    h+=`<article class="ev ${side++%2?"r":""}${e.i?" i":""}"><div class="card">
+      <div class="when">${e.m?MONTHS[e.m]+" ":""}${e.y}</div><h3>${esc(e.n)}</h3>
+      <div><span class="tag">${esc(e.t)}</span>${e.i?'<span class="tag star">Important</span>':""}</div>
+      ${e.d?`<p>${esc(e.d)}</p>`:""}
+      ${(e.p&&e.p.length)?`<div class="pics">${e.p.map(u=>`<img src="${u}" alt="Attached photo for ${esc(e.n)}">`).join("")}</div>`:""}
+      ${can?`<div class="act"><button data-e="${e.id}">Edit</button><button data-x="${e.id}">Delete</button></div>`:""}
+    </div></article>`;
+  }
+  $("tl").innerHTML=h;
+}
+const thumbs=()=>{$("thumbs").innerHTML=pics.map((u,i)=>`<div><img src="${u}" alt="Selected photo ${i+1}"><button type="button" class="x" data-r="${i}" aria-label="Remove photo">×</button></div>`).join("")};
+function reset(){editing=null;pics=[];$("f").reset();thumbs();$("save").textContent="Add to timeline";$("cancel").hidden=true;$("err").textContent=""}
+function shrink(file){return new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>{const im=new Image();im.onload=()=>{const k=Math.min(1,800/Math.max(im.width,im.height));const c=document.createElement("canvas");c.width=Math.round(im.width*k);c.height=Math.round(im.height*k);c.getContext("2d").drawImage(im,0,0,c.width,c.height);res(c.toDataURL("image/jpeg",.7))};im.onerror=rej;im.src=r.result};r.onerror=rej;r.readAsDataURL(file)})}
+
+if(!firebaseConfig.projectId||firebaseConfig.projectId.startsWith("YOUR")){
+  $("st").textContent="Not configured yet. Fill in firebase-config.js (see README.md).";
+}else{
+  const app=initializeApp(firebaseConfig),db=getFirestore(app),auth=getAuth(app),col=collection(db,"events");
+  onSnapshot(col,snap=>{items=snap.docs.map(d=>({...d.data(),id:d.id}));render()},e=>{$("st").textContent="Could not load: "+e.message});
+  onAuthStateChanged(auth,u=>{
+    can=!!u&&u.uid===OWNER_UID;
+    $("f").hidden=!can;$("lg").hidden=true;$("auth").textContent=u?"Sign out":"Owner sign in";
+    $("intro").textContent=can?"You are signed in as the owner. You can add, edit and delete events.":"A timeline of medical events, oldest first. Important events are highlighted.";
+    render();
+  });
+  $("auth").onclick=()=>{if(auth.currentUser)signOut(auth);else $("lg").hidden=!$("lg").hidden};
+  $("lg").addEventListener("submit",async ev=>{ev.preventDefault();$("lerr").textContent="";
+    try{await signInWithEmailAndPassword(auth,$("em").value,$("pw").value);$("pw").value=""}catch(e){$("lerr").textContent="Sign in failed."}});
+
+  $("f").addEventListener("submit",async ev=>{
+    ev.preventDefault();
+    const y=parseInt($("y").value,10);
+    if(!y||y<1900||y>2100){$("err").textContent="Enter a year between 1900 and 2100.";return}
+    const rec={y,m:+$("m").value,t:$("t").value,n:$("n").value.trim(),d:$("d").value.trim(),i:$("i").checked,p:[...pics]};
+    if(!rec.n){$("err").textContent="Describe the incident.";return}
+    if(JSON.stringify(rec).length>900000){$("err").textContent="Photos are too large for one event. Remove one.";return}
+    try{
+      if(editing)await setDoc(doc(db,"events",editing),{...rec,c:items.find(x=>x.id===editing).c||Date.now()});
+      else await addDoc(col,{...rec,c:Date.now()});
+      reset();
+    }catch(e){$("err").textContent="Save refused: "+e.message}
+  });
+  $("tl").addEventListener("click",async ev=>{
+    const b=ev.target.closest("button");if(!b||!can)return;
+    if(b.dataset.x){
+      if(b.dataset.arm!=="1"){b.dataset.arm="1";b.textContent="Confirm delete";setTimeout(()=>{b.dataset.arm="";b.textContent="Delete"},4000);return}
+      try{await deleteDoc(doc(db,"events",b.dataset.x))}catch(e){$("st").textContent="Delete refused: "+e.message}
+    }else if(b.dataset.e){
+      const o=items.find(x=>x.id===b.dataset.e);editing=o.id;pics=[...(o.p||[])];
+      $("y").value=o.y;$("m").value=o.m;$("t").value=o.t;$("n").value=o.n;$("d").value=o.d;$("i").checked=o.i;thumbs();
+      $("save").textContent="Save changes";$("cancel").hidden=false;$("f").scrollIntoView({behavior:"smooth"});
+    }
+  });
+}
+$("p").addEventListener("change",async ev=>{
+  for(const f of [...ev.target.files]){if(pics.length>=4){$("err").textContent="Up to 4 photos per event.";break}
+    try{pics.push(await shrink(f))}catch(e){$("err").textContent="Could not read that image."}}
+  ev.target.value="";thumbs();
+});
+$("thumbs").addEventListener("click",ev=>{const b=ev.target.closest("[data-r]");if(b){pics.splice(+b.dataset.r,1);thumbs()}});
+$("cancel").onclick=reset;
+$("tl").addEventListener("click",ev=>{const im=ev.target.closest(".pics img");if(im){$("lb").querySelector("img").src=im.src;$("lb").hidden=false}});
+$("lb").onclick=()=>{$("lb").hidden=true};
+document.addEventListener("keydown",e=>{if(e.key==="Escape")$("lb").hidden=true});
+$("pr").onclick=()=>window.print();
+render();
+</script>
+</body>
+</html>
