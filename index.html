@@ -77,6 +77,13 @@ form,.act,.bar button,#note,.x,header p{display:none!important}
 .ev{break-inside:avoid}.year{break-after:avoid}
 .pics img{width:90px;height:90px;cursor:default}
 }
+.alert{display:grid;grid-template-columns:1fr 1fr;gap:16px;background:var(--impbg);border:2px solid var(--imp);border-left-width:8px;border-radius:10px;padding:14px 56px 14px 18px;margin-top:22px;position:relative}
+.alert h2{font-size:1rem;color:#8a4f0e;margin-bottom:4px}
+.alert p{margin:0;white-space:pre-wrap;overflow-wrap:anywhere}
+#aedit{position:absolute;top:10px;right:12px;padding:3px 10px;font-size:.8rem}
+#af{margin-top:10px}
+@media (max-width:640px){.alert{grid-template-columns:1fr}}
+@media print{#aedit,#af{display:none!important}}
 </style>
 </head>
 <body>
@@ -104,6 +111,16 @@ form,.act,.bar button,#note,.x,header p{display:none!important}
 </div>
 </form>
 
+<section class="alert" aria-label="Allergies and current medication">
+<div><h2>Allergies</h2><p id="alg">Not yet added</p></div>
+<div><h2>Current medication</h2><p id="med">Not yet added</p></div>
+<button class="ghost" id="aedit" type="button" hidden>Edit</button>
+</section>
+<form id="af" hidden>
+<label class="f-det">Allergies (drugs, food, other)<textarea id="aa" placeholder="e.g. Penicillin: rash"></textarea></label>
+<label class="f-det">Current medication (name, dose, how often)<textarea id="am" placeholder="e.g. Azathioprine 75 mg daily"></textarea></label>
+<div class="row"><button class="primary" type="submit">Save</button><button class="ghost" id="acancel" type="button">Cancel</button><span class="err" id="aerr"></span></div>
+</form>
 <div class="bar"><h2>Timeline</h2><span id="count"></span><button class="ghost" id="pr" type="button">Print or save as PDF</button></div>
 <p class="err" id="st" role="status"></p>
 <section id="tl" aria-live="polite"></section>
@@ -154,9 +171,15 @@ if(!firebaseConfig.projectId||firebaseConfig.projectId.startsWith("YOUR")){
 }else{
   const app=initializeApp(firebaseConfig),db=getFirestore(app),auth=getAuth(app),col=collection(db,"events");
   onSnapshot(col,snap=>{items=snap.docs.map(d=>({...d.data(),id:d.id}));render()},e=>{$("st").textContent="Could not load: "+e.message});
+  const pref=doc(db,"profile","summary");let prof={};
+  onSnapshot(pref,sn=>{prof=sn.exists()?sn.data():{};$("alg").textContent=prof.allergies||"Not yet added";$("med").textContent=prof.meds||"Not yet added"},e=>{$("st").textContent="Could not load: "+e.message});
+  $("aedit").onclick=()=>{$("aa").value=prof.allergies||"";$("am").value=prof.meds||"";$("af").hidden=false;$("aa").focus()};
+  $("acancel").onclick=()=>{$("af").hidden=true};
+  $("af").addEventListener("submit",async ev=>{ev.preventDefault();$("aerr").textContent="";
+    try{await setDoc(pref,{allergies:$("aa").value.trim(),meds:$("am").value.trim()});$("af").hidden=true}catch(e){$("aerr").textContent="Save refused: "+e.message}});
   onAuthStateChanged(auth,u=>{
     can=!!u&&u.uid===OWNER_UID;
-    $("f").hidden=!can;$("lg").hidden=true;$("auth").textContent=u?"Sign out":"Owner sign in";
+    $("f").hidden=!can;$("lg").hidden=true;$("aedit").hidden=!can;if(!can)$("af").hidden=true;$("auth").textContent=u?"Sign out":"Owner sign in";
     $("intro").textContent=can?"You are signed in as the owner. You can add, edit and delete events.":"A timeline of medical events, oldest first. Important events are highlighted.";
     render();
   });
